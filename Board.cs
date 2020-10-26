@@ -5,13 +5,26 @@ public enum CellType
     DEAD,
 }
 
+
+
 public struct Cell
 {
     public CellType type;
+    public static readonly byte[] Red = { 255, 0, 0 };
+    public static readonly byte[] Blue = { 0, 255, 0 };
 
     public Cell(CellType type)
     {
         this.type = type;
+    }
+
+    public byte[] ToColor()
+    {
+        if (type == CellType.ALIVE)
+        {
+            return Blue;
+        }
+        return Red;
     }
 }
 
@@ -42,14 +55,16 @@ public class Board
 
     public Board(IView view, string config = "/")
     {
-        width = 256;
-        height = 256;
+        width = 30;
+        height = 30;
         cells = new Cell[width, height];
         for (int i = 0; i < cells.GetLength(0); i++)
         {
             for (int j = 0; j < cells.GetLength(1); j++)
             {
-                cells[i, j] = new Cell(CellType.ALIVE);
+                if (i % 2 == 0) 
+                    cells[i, j] = new Cell(CellType.ALIVE);
+                else cells[i, j] = new Cell(CellType.DEAD);
             }
                 
         }
@@ -64,7 +79,7 @@ public class Board
     public void Start()
     {
         view.DrawGrid(cells);
-        view.SetResolution(100f, width, height);
+        view.SetResolution(100f);
     }
 
     public void Update()

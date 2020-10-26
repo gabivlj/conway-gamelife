@@ -21,9 +21,7 @@ namespace testconway
         #region Private variables
         private Board board;
         private float resolution = 76.0f;
-        private int numberOfGridsX = 15;
-        private int numberOfGridsY = 15;
-        private int margin = 1;
+        private int margin = 12;
         private float offsetX = 0.0f;
         private float offsetY = 0.0f;
 
@@ -39,10 +37,8 @@ namespace testconway
 
         #region Draw interface
 
-        public void SetResolution(float res, int width = -1, int height = -1)
+        public void SetResolution(float res)
         {
-            if (width > 0)  numberOfGridsX = width;
-            if (height > 0) numberOfGridsY = height;
             resolution = res;
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
@@ -59,15 +55,16 @@ namespace testconway
         public void DrawGrid(Cell[,] cells)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit);
-            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-            GL.Color3(0.5f, 1.0f, 1.0f);
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+            
             int ySize = 0;
-            for (int i = 1; i <= numberOfGridsX; i++)
+            for (int i = 0; i < cells.GetLength(0); i++)
             {
                 int xSize = 0;
-                for (int j = 1; j <= numberOfGridsY; j++)
+                for (int j = 0; j < cells.GetLength(1); j++)
                 {
                     GL.Begin(PrimitiveType.Polygon);
+                    GL.Color3(cells[i,j].ToColor());
                     GL.Vertex3(-resolution + xSize, -resolution + ySize, 0.0);
                     GL.Vertex3(-resolution + 10 + xSize, -resolution + ySize, 0.0);
                     GL.Vertex3(-resolution + 10 + xSize, -resolution + 10 + ySize, 0.0);

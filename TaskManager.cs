@@ -4,27 +4,39 @@ using System.Threading;
 
 namespace testconway
 {
-    public delegate void Task();
+    public delegate void Task(object parameter);
+
+    class TaskHolder
+    {
+        public object parameter;
+        public Task task;
+
+        public TaskHolder(Task task, object parameter)
+        {
+            this.task = task;
+            this.parameter = parameter;
+        }
+    }
 
     class TaskReader
     {
         public TaskReader(int maxConcurrentTasks)
         {
-            queue = new Queue<Task>();
+            queue = new Queue<TaskHolder>();
             resource = new Semaphore(1, 1);
             queueResources = new Semaphore(0, maxConcurrentTasks);
         }
 
-        private Queue<Task> queue;
+        private Queue<TaskHolder> queue;
         private Semaphore resource;
         private Semaphore queueResources;
 
-        public void Send(Task task)
+        public void Send(Task task, object parameter)
         {
             // Wait that the queue is ready to get enqueued
             resource.WaitOne();
 
-            queue.Enqueue(task);
+            queue.Enqueue(new TaskHolder(task, parameter));
 
             resource.Release();
 
@@ -34,13 +46,14 @@ namespace testconway
 
         public void Finish()
         {
+            // Release all semaphores once and empty the queue, this special case will be handled below.
             resource.WaitOne();            
             queue.Clear();
             resource.Release();
             queueResources.Release();
         }
 
-        public Task GetOne()
+        public TaskHolder GetOne()
         {
             // Wait for the queue to not be empty so we are not "hanging" for the queue Mutex when it's empty
             queueResources.WaitOne();
@@ -57,7 +70,7 @@ namespace testconway
             }
 
             // Get it and release queue semaphore 
-            Task t = queue.Dequeue();
+            TaskHolder t = queue.Dequeue();
             resource.Release();
 
             return t;
@@ -84,17 +97,15 @@ namespace testconway
                 state = State.Initialized;
                 while (state != State.Ending)
                 {
-                    Task task = reader.GetOne();
-                    if (task == null)
+                    TaskHolder taskHolder = reader.GetOne();
+                    if (taskHolder == null)
                     {
                         continue;
                     }
-                    task();
+                    taskHolder.task(taskHolder.parameter);
                 }
                 state = State.Finished;
             });
-
-            // thread.IsBackground = true;
             thread.Start();
         }
 
@@ -109,16 +120,15 @@ namespace testconway
         #region Private
         private ThreadDoer[] threads;
         private TaskReader reader;
-
         #endregion
 
         #region Public
 
         #endregion
 
-        public TaskManager(int size, int maxAwaitingTasks)
+        public TaskManager(int size, int maxConcurrentTasks)
         {
-            reader = new TaskReader(maxAwaitingTasks);
+            reader = new TaskReader(maxConcurrentTasks);
             threads = new ThreadDoer[size];
             for (int i = 0; i < size; ++i)
             {
@@ -128,9 +138,9 @@ namespace testconway
 
         #region Public Methods
 
-        public void Do(Task task)
+        public void Do(Task task, object parameter = null)
         {
-            reader.Send(task);
+            reader.Send(task, parameter);
         }
 
         public void Finish()

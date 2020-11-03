@@ -17,12 +17,12 @@ namespace testconway
             //Console.Clear();
             const double nIters = 100000;
             var taskManager = new TaskManager(16, 1000);
-            taskManager.Do(() =>
+            taskManager.Do((_) =>
             {
                 for (int i = 1; i <= nIters; i++)
                 {
                     int capture = i;
-                    taskManager.Do(() =>
+                    taskManager.Do((_) =>
                     {
                         int capt2 = capture;
                         //Thread.Sleep(i);

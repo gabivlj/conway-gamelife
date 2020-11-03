@@ -64,7 +64,8 @@ public class Board
             {
                 if (i % 2 == 0) 
                     cells[i, j] = new Cell(CellType.ALIVE);
-                else cells[i, j] = new Cell(CellType.DEAD);
+                else
+                    cells[i, j] = new Cell(CellType.DEAD);
             }
                 
         }

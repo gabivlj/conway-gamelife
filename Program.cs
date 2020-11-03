@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
@@ -7,12 +8,44 @@ namespace testconway
 {
     class Program
     {
+        static string l = "";
+        static double st = 0;
+
+
         static void Main(string[] args)
         {
-            using (var window = new Window())
+            //Console.Clear();
+            const double nIters = 100000;
+            var taskManager = new TaskManager(16, 1000);
+            taskManager.Do(() =>
             {
-                window.Run();
+                for (int i = 1; i <= nIters; i++)
+                {
+                    int capture = i;
+                    taskManager.Do(() =>
+                    {
+                        int capt2 = capture;
+                        //Thread.Sleep(i);
+                        lock(l)
+                        {
+                            st += capt2;
+                        }
+                    });
+                }
+            });
+            Console.WriteLine("start check...");
+            while (st != 5000050000)
+            {
+                Console.WriteLine($"mmm {st}");
+                Thread.Sleep(150);                
             }
+            Console.WriteLine($"finished {st}");
+            taskManager.Finish();
+
+            //using (var window = new Window())
+            //{
+            //    window.Run();
+            //}
         }
     }
 
@@ -85,9 +118,9 @@ namespace testconway
         protected override void OnKeyPress(OpenTK.KeyPressEventArgs e)
         {
             if (e.KeyChar == 'D' || e.KeyChar == 'd')
-                offsetX -= speed;
-            if (e.KeyChar == 'A' || e.KeyChar == 'a')
                 offsetX += speed;
+            if (e.KeyChar == 'A' || e.KeyChar == 'a')
+                offsetX -= speed;
             SetResolution(resolution);
         }
 

@@ -1,17 +1,18 @@
 ﻿<Properties StartupConfiguration="{D4B47B2F-359D-469D-91A5-A57F067C8D91}|Default">
   <MonoDevelop.Ide.ItemProperties.testconway PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Program.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="TaskManager.cs">
     <Files>
-      <File FileName="Program.cs" Line="37" Column="58" />
-      <File FileName="Board.cs" Line="67" Column="28" />
-      <File FileName="ViewImplementation.cs" Line="3" Column="23" />
+      <File FileName="Program.cs" Line="29" Column="32" />
+      <File FileName="TaskManager.cs" Line="38" Column="24" />
+      <File FileName="Board.cs" />
+      <File FileName="ViewImplementation.cs" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="testconway" expanded="True">
             <Node name="testconway" expanded="True">
-              <Node name="Program.cs" selected="True" />
+              <Node name="TaskManager.cs" selected="True" />
             </Node>
           </Node>
         </State>

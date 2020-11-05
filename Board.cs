@@ -1,12 +1,16 @@
 ﻿
+using testconway;
+
+
 public enum CellType
 {
-    ALIVE,
-    DEAD,
+    Alive,
+    Dead,
 }
 
-
-
+/// <summary>
+/// Cell data structure which holds all the information that the View and Game logic needs
+/// </summary>
 public struct Cell
 {
     public CellType type;
@@ -20,11 +24,7 @@ public struct Cell
 
     public byte[] ToColor()
     {
-        if (type == CellType.ALIVE)
-        {
-            return Blue;
-        }
-        return Red;
+        return type == CellType.Alive ? Blue : Red;
     }
 }
 
@@ -32,10 +32,12 @@ public class Board
 {
     #region Private
 
+    private volatile bool cellsUpdated = false;
     private int width;
     private int height;
     private Cell[,] cells;
     private IView view;
+    private Game game;
 
     #endregion
 
@@ -53,23 +55,20 @@ public class Board
 
     #region Public
 
-    public Board(IView view, string config = "/")
+    public Board(IView view, string configPath = "./data.txt")
     {
-        width = 30;
-        height = 30;
-        cells = new Cell[width, height];
-        for (int i = 0; i < cells.GetLength(0); i++)
-        {
-            for (int j = 0; j < cells.GetLength(1); j++)
-            {
-                if (i % 2 == 0) 
-                    cells[i, j] = new Cell(CellType.ALIVE);
-                else
-                    cells[i, j] = new Cell(CellType.DEAD);
-            }
-                
-        }
+        Config configData = new Config(configPath);
+        width  = configData.Width;
+        height = configData.Height;
+        cells  = configData.LoadCells();
+        game   = new Game(this);
         this.view = view;
+    }
+    
+    public void SafeUpdateCells(Cell[,] cells)
+    {
+        this.cells = cells;
+        cellsUpdated = true;
     }
 
     public Cell[,] BoardCopy()
@@ -77,15 +76,30 @@ public class Board
         return cells.Clone() as Cell[,];
     }
 
+    /// <summary>
+    /// On Start draw
+    /// TODO Initialize threads and run the game there, also send messages here to draw grid
+    /// </summary>
     public void Start()
     {
         view.DrawGrid(cells);
         view.SetResolution(100f);
+
+        game.DoTurn(500);
     }
 
+    /// <summary>
+    /// It's gonna be called by the view each frame
+    /// </summary>
     public void Update()
     {
-
+        if (!cellsUpdated)
+        {            
+            return;
+        }
+        view.DrawGrid(cells);
+        game.DoTurn(100);
+        cellsUpdated = false;
     }
 
     #endregion

@@ -11,42 +11,49 @@ namespace testconway
         static string l = "";
         static double st = 0;
 
-
-        static void Main(string[] args)
+        static void TestingWorkers()
         {
-            //Console.Clear();
             const double nIters = 100000;
-            var taskManager = new TaskManager(16, 1000);
+            var taskManager = new TaskManager(16);
             taskManager.Do((_) =>
             {
                 for (int i = 1; i <= nIters; i++)
                 {
                     int capture = i;
-                    taskManager.Do((_) =>
+                    taskManager.Do((el) =>
                     {
+                        int ij = (int) el;
                         int capt2 = capture;
                         //Thread.Sleep(i);
-                        lock(l)
+                        lock (l)
                         {
-                            st += capt2;
+                            st += ij;
                         }
-                    });
+                    }, i);
                 }
             });
             Console.WriteLine("start check...");
             while (st != 5000050000)
             {
                 Console.WriteLine($"mmm {st}");
-                Thread.Sleep(150);                
+                Thread.Sleep(150);
             }
             Console.WriteLine($"finished {st}");
             taskManager.Finish();
-
-            //using (var window = new Window())
-            //{
-            //    window.Run();
-            //}
         }
+
+
+        static void Main(string[] args)
+        {
+            //Console.Clear();
+
+            //TestingWorkers();
+            using (var window = new Window())
+            {
+                window.Run();
+            }
+        }
+
     }
 
     class Window : GameWindow, IView
@@ -70,28 +77,32 @@ namespace testconway
 
         #region Draw interface
 
-        public void SetResolution(float res)
+        public void SetResolution(float res = -1)
         {
-            resolution = res;
+            resolution = res == -1 ? resolution : res;
+            DrawGrid(board.Cells);
+        }
+
+        public void DrawGrid(Cell[,] cells)
+        {
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
             GL.Ortho(-resolution + offsetX, resolution + offsetX, -resolution + offsetY, resolution + offsetY, -1.0, 1.0);
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadIdentity();
-            DrawGrid(board.Cells);
-            SwapBuffers();
+            DrawGridGL(cells);
+            SwapBuffers();            
         }
 
         /// <summary>
-        /// Updates the grid view
+        /// Updates the grid view from the board
         /// </summary>
-        public void DrawGrid(Cell[,] cells)
+        private void DrawGridGL(Cell[,] cells)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit);
             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-            
             int ySize = 0;
-            for (int i = 0; i < cells.GetLength(0); i++)
+            for (int i = cells.GetLength(0)-1; i >= 0; i--)
             {
                 int xSize = 0;
                 for (int j = 0; j < cells.GetLength(1); j++)

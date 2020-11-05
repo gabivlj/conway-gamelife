@@ -20,61 +20,84 @@ namespace testconway
 
     class TaskReader
     {
-        public TaskReader(int maxConcurrentTasks)
+        public TaskReader()
         {
             queue = new Queue<TaskHolder>();
             resource = new Semaphore(1, 1);
-            queueResources = new Semaphore(0, maxConcurrentTasks);
+            localRes = new Semaphore(1, 1);
+            //queueResources = new Semaphore(0, maxConcurrentTasks);
+            handle = new EventWaitHandle(false, EventResetMode.ManualReset);
+
         }
 
+        #region Private
         private Queue<TaskHolder> queue;
-        private Semaphore resource;
-        private Semaphore queueResources;
+        private Semaphore resource;        
+        private Semaphore localRes;
+        private EventWaitHandle handle;
 
+        #endregion
+
+        #region Public
         public void Send(Task task, object parameter)
-        {
+        {            
             // Wait that the queue is ready to get enqueued
             resource.WaitOne();
 
             queue.Enqueue(new TaskHolder(task, parameter));
 
+            
             resource.Release();
 
             // Tell threads that there is a new task
-            queueResources.Release();
+            handle.Set();
+
         }
 
+        /// <summary>
+        /// TODO
+        /// </summary>
         public void Finish()
         {
             // Release all semaphores once and empty the queue, this special case will be handled below.
             resource.WaitOne();            
             queue.Clear();
             resource.Release();
-            queueResources.Release();
+            
+            //queueResources.Release();
         }
 
+        /// <summary>
+        /// Gets one task
+        /// </summary>
+        /// <returns></returns>
         public TaskHolder GetOne()
         {
-            // Wait for the queue to not be empty so we are not "hanging" for the queue Mutex when it's empty
-            queueResources.WaitOne();
+            // Only one thread can access the queue mutex
+            localRes.WaitOne();
 
-            // Dequeue it from the queue
+            // Dequeue it 
             resource.WaitOne();
 
-            // This means that the TaskReader has been finished!
+            // If it is empty wait for signal
             if (queue.Count == 0)
             {
                 resource.Release();
-                queueResources.Release();
+                handle.WaitOne();
+                localRes.Release();
                 return null;
             }
 
             // Get it and release queue semaphore 
             TaskHolder t = queue.Dequeue();
             resource.Release();
-
+            localRes.Release();
             return t;
         }
+
+        #endregion
+
+
 
     }
 
@@ -126,9 +149,9 @@ namespace testconway
 
         #endregion
 
-        public TaskManager(int size, int maxConcurrentTasks)
+        public TaskManager(int size)
         {
-            reader = new TaskReader(maxConcurrentTasks);
+            reader = new TaskReader();
             threads = new ThreadDoer[size];
             for (int i = 0; i < size; ++i)
             {

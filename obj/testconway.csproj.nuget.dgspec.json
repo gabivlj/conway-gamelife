@@ -41,7 +41,7 @@
           "dependencies": {
             "OpenTK.NetStandard": {
               "target": "Package",
-              "version": "[1.0.5.22, )"
+              "version": "[1.0.5.32, )"
             }
           },
           "imports": [

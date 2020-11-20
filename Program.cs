@@ -4,6 +4,7 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 
+
 namespace testconway
 {
     class Program
@@ -46,7 +47,8 @@ namespace testconway
         static void Main(string[] args)
         {
             //Console.Clear();
-
+            Console.Clear();
+            Console.WriteLine("instructions: \n- Movement with wasd.\n- '+' To add one thread.\n- '-' To remove a thread.\n- 'r' to Reset.");
             //TestingWorkers();
             using (var window = new Window())
             {
@@ -121,6 +123,11 @@ namespace testconway
             GL.Flush();
         }
 
+        private void DisplayInformation()
+        {
+          
+        }
+
         #endregion
 
         #region OpenGL LifeCycle
@@ -128,10 +135,27 @@ namespace testconway
         const int speed = 10;
         protected override void OnKeyPress(OpenTK.KeyPressEventArgs e)
         {
+            if (e.KeyChar == 'r' || e.KeyChar == 'R')
+            {
+                Console.WriteLine("reset");
+                board.Reset();
+                return;
+            }
+            if (e.KeyChar == '+')
+            {
+                board.AddThread();
+                return;
+            }
+            if (e.KeyChar == '-')
+            {
+                board.RemoveThread();
+                return;
+            }
             if (e.KeyChar == 'D' || e.KeyChar == 'd')
                 offsetX += speed;
             if (e.KeyChar == 'A' || e.KeyChar == 'a')
                 offsetX -= speed;
+            
             SetResolution(resolution);
         }
 
@@ -144,18 +168,23 @@ namespace testconway
         {
             
             SetResolution(resolution + args.Delta);
-        }
+        }        
 
         protected override void OnLoad(System.EventArgs e)
         {
             GL.ClearColor(0.1f, 0.2f, 0.3f, 1f);            
-            board = new Board(this);
-            board.Start();            
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
-        {            
+        {
+            if (board == null)
+            {
+                board = new Board(this, "./glider.txt");
+                board.Start();
+            }
             board.Update();
+            //drawing.Print(font, txt, , new QFontRenderOptions());
+            //drawing.Print(font, "text2", new Vector3(1, 1, 1), QFontAlignment.Left);
         }
 
         

@@ -8,7 +8,7 @@
     ".NETCoreApp,Version=v3.1": {
       "testconway/1.0.0": {
         "dependencies": {
-          "OpenTK.NetStandard": "1.0.5.22"
+          "OpenTK.NetStandard": "1.0.5.32"
         },
         "runtime": {
           "testconway.dll": {}
@@ -40,15 +40,15 @@
           }
         }
       },
-      "OpenTK.NetStandard/1.0.5.22": {
+      "OpenTK.NetStandard/1.0.5.32": {
         "dependencies": {
           "Microsoft.Win32.Registry": "4.7.0",
           "System.Drawing.Common": "4.5.0"
         },
         "runtime": {
           "lib/netstandard2.1/OpenTK.dll": {
-            "assemblyVersion": "1.0.5.22",
-            "fileVersion": "1.0.5.22"
+            "assemblyVersion": "1.0.5.32",
+            "fileVersion": "1.0.5.32"
           }
         }
       },
@@ -114,12 +114,12 @@
       "path": "microsoft.win32.systemevents/4.5.0",
       "hashPath": "microsoft.win32.systemevents.4.5.0.nupkg.sha512"
     },
-    "OpenTK.NetStandard/1.0.5.22": {
+    "OpenTK.NetStandard/1.0.5.32": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-guqcezEdyq9K+pG4/yYw6Zz4FfLUAqAkDrvegT81OfGFQ1cZj+oHbkUJRvGEkESUyQ09A6Z65yPlLmvZaKtmhA==",
-      "path": "opentk.netstandard/1.0.5.22",
-      "hashPath": "opentk.netstandard.1.0.5.22.nupkg.sha512"
+      "sha512": "sha512-8r96CbxGzWrganRmHR/SVS/M2HJNVmtfHH+qcxO0P/mJgyDrnEf1vgmFajyGiR8s+/9A52ulT0Obbk2Acgd3Mw==",
+      "path": "opentk.netstandard/1.0.5.32",
+      "hashPath": "opentk.netstandard.1.0.5.32.nupkg.sha512"
     },
     "System.Drawing.Common/4.5.0": {
       "type": "package",

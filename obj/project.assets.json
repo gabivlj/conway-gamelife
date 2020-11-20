@@ -52,7 +52,7 @@
           }
         }
       },
-      "OpenTK.NetStandard/1.0.5.22": {
+      "OpenTK.NetStandard/1.0.5.32": {
         "type": "package",
         "dependencies": {
           "Microsoft.Win32.Registry": "4.7.0",
@@ -213,16 +213,16 @@
         "version.txt"
       ]
     },
-    "OpenTK.NetStandard/1.0.5.22": {
-      "sha512": "guqcezEdyq9K+pG4/yYw6Zz4FfLUAqAkDrvegT81OfGFQ1cZj+oHbkUJRvGEkESUyQ09A6Z65yPlLmvZaKtmhA==",
+    "OpenTK.NetStandard/1.0.5.32": {
+      "sha512": "8r96CbxGzWrganRmHR/SVS/M2HJNVmtfHH+qcxO0P/mJgyDrnEf1vgmFajyGiR8s+/9A52ulT0Obbk2Acgd3Mw==",
       "type": "package",
-      "path": "opentk.netstandard/1.0.5.22",
+      "path": "opentk.netstandard/1.0.5.32",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "lib/netstandard2.1/OpenTK.dll",
         "lib/netstandard2.1/OpenTK.xml",
-        "opentk.netstandard.1.0.5.22.nupkg.sha512",
+        "opentk.netstandard.1.0.5.32.nupkg.sha512",
         "opentk.netstandard.nuspec"
       ]
     },
@@ -362,7 +362,7 @@
   },
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v3.1": [
-      "OpenTK.NetStandard >= 1.0.5.22"
+      "OpenTK.NetStandard >= 1.0.5.32"
     ]
   },
   "packageFolders": {
@@ -406,7 +406,7 @@
         "dependencies": {
           "OpenTK.NetStandard": {
             "target": "Package",
-            "version": "[1.0.5.22, )"
+            "version": "[1.0.5.32, )"
           }
         },
         "imports": [

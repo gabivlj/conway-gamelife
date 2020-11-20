@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace testconway
@@ -6,14 +7,30 @@ namespace testconway
     public class Game
     {
 
+        #region Properties
+
+        public int NumberOfWorkers
+        {
+            set
+            {
+                numberOfWorkers = value;
+                newWorkers = true;
+            }
+
+            get => numberOfWorkers;
+        }
+        #endregion
+
         #region Private
-        private volatile Board board;
+        private Board board;
         private TaskManager manager;
 
         /// <summary>
         /// How many threads do you want
         /// </summary>
-        const int N_WORKERS = 16;
+        private int numberOfWorkers = 8;
+
+        private bool newWorkers = false;
 
         #endregion
 
@@ -22,12 +39,13 @@ namespace testconway
         /// <summary>
         /// Initializes a Game class which will be in charge of initializing game turns in a multithreaded way.
         ///
+        ///
         /// </summary>
         /// <param name="board"></param>
         public Game(Board board)
         {
             this.board = board;
-            manager = new TaskManager(N_WORKERS);            
+            manager = new TaskManager(numberOfWorkers);            
         }
 
         /// <summary>
@@ -36,14 +54,19 @@ namespace testconway
         /// <param name="sleepTime"></param>
         public void DoTurn(int sleepTime)
         {
-            manager.Do((_) =>
+            if (newWorkers)
             {
+                manager.Finish();
+                manager = new TaskManager(numberOfWorkers);
+                newWorkers = false;
+            }
+            new Thread((_) =>
+            {
+                Thread.Sleep(sleepTime);
                 CellAction.CallCellActions(board, manager);
-                Cell[,] newCells = CellAction.WaitNewGameState();
-                //Thread.Sleep(sleepTime);
+                Cell[,] newCells = CellAction.WaitNewGameState();                
                 board.SafeUpdateCells(newCells);
-            });
-            
+            }).Start();            
         }
 
         #endregion
@@ -77,12 +100,43 @@ namespace testconway
             manager.Do(FuncGameLogic, this);
         }
 
+        private List<Cell> GetAliveNeighbors(int i, int j)
+        {
+            List<Cell> neigh = new List<Cell>(8);
+            int maxCol = Math.Min(cellsCompare.GetLength(1), j + 2);
+            int minCol = Math.Max(0, j - 1);
+            int maxRow = Math.Min(cellsCompare.GetLength(0), i + 2);
+            int minRow = Math.Max(0, i - 1);
+            for (int row = minRow; row < maxRow; ++row)
+            {
+                for (int col = minCol; col < maxCol; ++col)
+                {
+                    if (row == i && col == j) continue;
+                    Cell toAdd = cellsCompare[row, col];
+                    if (toAdd.type == CellType.Alive) neigh.Add(toAdd);
+                }
+            }
+
+            if (neigh.Count == 9) Console.WriteLine("bad things are happening: count is 9");
+            return neigh;
+        }
+
+
         private void FuncGameLogic(object cellAct)
         {
             CellAction cellAction = cellAct as CellAction;
-            cellsSet[cellAction.y, cellAction.x].type = cellAction.
-                cellsCompare[cellAction.y, cellAction.x].type == CellType.Alive ? CellType.Dead : CellType.Alive;
-
+            Cell cell = cellsCompare[cellAction.y, cellAction.x];
+            Cell cellSet = cellsCompare[cellAction.y, cellAction.x];
+            int numberOfAliveNeighbors = GetAliveNeighbors(cellAction.y, cellAction.x).Count;
+            if (cell.type == CellType.Dead && numberOfAliveNeighbors == 3)
+            {                
+                cellSet.type = CellType.Alive;                
+            }
+            else if (numberOfAliveNeighbors < 2 || numberOfAliveNeighbors > 3)
+            {                
+                cellSet.type = CellType.Dead;
+            }
+            cellsSet[cellAction.y, cellAction.x] = cellSet;
             cellResources.Release();
         }
 
@@ -122,12 +176,11 @@ namespace testconway
         /// </summary>
         /// <returns></returns>
         public static Cell[,] WaitNewGameState()
-        {
+        {           
             for (int j = 0; j < size; j++)
             {
-                cellResources.WaitOne();
+                cellResources.WaitOne();               
             }
-            
             size = 0;
             return cellsSet;
         }

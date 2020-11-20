@@ -1,4 +1,5 @@
 ﻿
+using System;
 using testconway;
 
 
@@ -38,6 +39,8 @@ public class Board
     private Cell[,] cells;
     private IView view;
     private Game game;
+    private bool reset = false;
+    private string path;
 
     #endregion
 
@@ -55,14 +58,32 @@ public class Board
 
     #region Public
 
+    public void AddThread()
+    {        
+        game.NumberOfWorkers = Math.Min(64, game.NumberOfWorkers + 1);
+        Console.WriteLine($"current threads: {game.NumberOfWorkers}");
+    }
+
+    public void RemoveThread()
+    {
+        game.NumberOfWorkers = Math.Max(1, game.NumberOfWorkers - 1);
+        Console.WriteLine($"current threads: {game.NumberOfWorkers}");
+    }
+
     public Board(IView view, string configPath = "./data.txt")
     {
-        Config configData = new Config(configPath);
-        width  = configData.Width;
-        height = configData.Height;
-        cells  = configData.LoadCells();
+        path = configPath;
+        LoadConfig(path);
         game   = new Game(this);
         this.view = view;
+    }
+
+    private void LoadConfig(string configPath)
+    {
+        Config configData = new Config(configPath);
+        width = configData.Width;
+        height = configData.Height;
+        cells = configData.LoadCells();
     }
     
     public void SafeUpdateCells(Cell[,] cells)
@@ -78,7 +99,6 @@ public class Board
 
     /// <summary>
     /// On Start draw
-    /// TODO Initialize threads and run the game there, also send messages here to draw grid
     /// </summary>
     public void Start()
     {
@@ -92,14 +112,28 @@ public class Board
     /// It's gonna be called by the view each frame
     /// </summary>
     public void Update()
-    {
+    {        
         if (!cellsUpdated)
         {            
             return;
         }
+        if (reset)
+        {
+            LoadConfig(path);
+            reset = false;
+            view.DrawGrid(cells);
+            game.DoTurn(1000);
+            cellsUpdated = false;
+            return;
+        }        
+        game.DoTurn(300);
         view.DrawGrid(cells);
-        game.DoTurn(100);
         cellsUpdated = false;
+    }
+
+    public void Reset()
+    {
+        reset = true;
     }
 
     #endregion

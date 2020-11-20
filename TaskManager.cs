@@ -25,7 +25,6 @@ namespace testconway
             queue = new Queue<TaskHolder>();
             resource = new Semaphore(1, 1);
             localRes = new Semaphore(1, 1);
-            //queueResources = new Semaphore(0, maxConcurrentTasks);
             handle = new EventWaitHandle(false, EventResetMode.ManualReset);
 
         }
@@ -55,41 +54,42 @@ namespace testconway
         }
 
         /// <summary>
-        /// TODO
+        /// TODO Test this
         /// </summary>
         public void Finish()
         {
-            // Release all semaphores once and empty the queue, this special case will be handled below.
-            resource.WaitOne();            
-            queue.Clear();
-            resource.Release();
             
-            //queueResources.Release();
         }
 
         /// <summary>
-        /// Gets one task
+        /// Gets one task from the queue, if there is none it will return null.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns null if there is not a task, else a TaskHolder</returns>
         public TaskHolder GetOne()
         {
-            // Only one thread can access the queue mutex
+            // Only one thread can access the queue semaphore
             localRes.WaitOne();
 
-            // Dequeue it 
+            // Make sure no one is accessing the queue
             resource.WaitOne();
 
-            // If it is empty wait for signal
+            // If it is empty, wait for signal
             if (queue.Count == 0)
             {
+                // Release queue semaphore so a new task can be added
                 resource.Release();
+                // Wait until there is a new task in the queue.
                 handle.WaitOne();
+                // Release Semaphore for the resources
                 localRes.Release();
                 return null;
             }
 
             // Get it and release queue semaphore 
             TaskHolder t = queue.Dequeue();
+
+            // Release everything, so a new thread can access the queue mutex, and also there can be new elements
+            // added into the queue
             resource.Release();
             localRes.Release();
             return t;
@@ -118,17 +118,20 @@ namespace testconway
             thread = new Thread(() =>
             {
                 state = State.Initialized;
-                while (state != State.Ending)
+                while (true)
                 {
                     TaskHolder taskHolder = reader.GetOne();
                     if (taskHolder == null)
                     {
+                        if (state == State.Ending)
+                            break;
                         continue;
                     }
                     taskHolder.task(taskHolder.parameter);
                 }
-                state = State.Finished;
+                state = State.Finished;                
             });
+            thread.IsBackground = true;
             thread.Start();
         }
 

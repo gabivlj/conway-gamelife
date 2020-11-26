@@ -19,9 +19,11 @@ namespace testconway
 
             get => numberOfWorkers;
         }
+
         #endregion
 
         #region Private
+
         private Board board;
         private TaskManager manager;
 
@@ -63,9 +65,13 @@ namespace testconway
             new Thread((_) =>
             {
                 Thread.Sleep(sleepTime);
+                var d = DateTime.Now;
                 CellAction.CallCellActions(board, manager);
-                Cell[,] newCells = CellAction.WaitNewGameState();                
+                Cell[,] newCells = CellAction.WaitNewGameState();
+                TimeSpan span = DateTime.Now.Subtract(d);
+                Console.WriteLine($"turn done in {span.Milliseconds}");
                 board.SafeUpdateCells(newCells);
+                
             }).Start();            
         }
 

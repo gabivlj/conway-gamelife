@@ -26,11 +26,12 @@ namespace testconway
             resource = new Semaphore(1, 1);
             localRes = new Semaphore(1, 1);
             handle = new EventWaitHandle(false, EventResetMode.ManualReset);
-
+            batch = new Queue<TaskHolder>();
         }
 
         #region Private
         private Queue<TaskHolder> queue;
+        private Queue<TaskHolder> batch;
         private Semaphore resource;        
         private Semaphore localRes;
         private EventWaitHandle handle;
@@ -69,7 +70,13 @@ namespace testconway
         {
             // Only one thread can access the queue semaphore
             localRes.WaitOne();
-
+            // We use a localBatcher that doesn't block the queue
+            if (batch.Count != 0)
+            {
+                TaskHolder ts = batch.Dequeue();
+                localRes.Release();
+                return ts;
+            }
             // Make sure no one is accessing the queue
             resource.WaitOne();
 
@@ -84,10 +91,13 @@ namespace testconway
                 localRes.Release();
                 return null;
             }
-
+            
             // Get it and release queue semaphore 
             TaskHolder t = queue.Dequeue();
-
+            // swap current elements of the queue to the batcher so we don't block the queue for next element
+            batch = queue;
+            // reinitialize queue
+            queue = new Queue<TaskHolder>();
             // Release everything, so a new thread can access the queue mutex, and also there can be new elements
             // added into the queue
             resource.Release();

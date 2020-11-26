@@ -179,7 +179,7 @@ namespace testconway
         {
             if (board == null)
             {
-                board = new Board(this, "./glider.txt");
+                board = new Board(this, "./test.txt");
                 board.Start();
             }
             board.Update();

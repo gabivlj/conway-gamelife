@@ -29,8 +29,9 @@ namespace testconway
 
         /// <summary>
         /// How many threads do you want
+        ///
         /// </summary>
-        private int numberOfWorkers = 8;
+        private int numberOfWorkers = 3;
 
         private bool newWorkers = false;
 
@@ -59,20 +60,21 @@ namespace testconway
             if (newWorkers)
             {
                 manager.Finish();
-                manager = new TaskManager(numberOfWorkers);
+                // one more because we have to send the initial task and there is not a softblock
+                manager = new TaskManager(numberOfWorkers+1);
                 newWorkers = false;
             }
-            new Thread((_) =>
+            manager.Do((_) =>
             {
-                Thread.Sleep(sleepTime);
                 var d = DateTime.Now;
                 CellAction.CallCellActions(board, manager);
                 Cell[,] newCells = CellAction.WaitNewGameState();
                 TimeSpan span = DateTime.Now.Subtract(d);
-                Console.WriteLine($"turn done in {span.Milliseconds}");
+                //Console.WriteLine($"turn done in {span.Milliseconds}");
+                Thread.Sleep(Math.Max(sleepTime - span.Milliseconds, 1));
                 board.SafeUpdateCells(newCells);
-                
-            }).Start();            
+
+            });          
         }
 
         #endregion
@@ -93,7 +95,7 @@ namespace testconway
         static private volatile Cell[,] cellsSet;
         static private Semaphore cellResources;
         static private int size;
-
+            
         #endregion
 
         #region Internal Local Logic 
@@ -106,9 +108,10 @@ namespace testconway
             manager.Do(FuncGameLogic, this);
         }
 
-        private List<Cell> GetAliveNeighbors(int i, int j)
+        private int GetAliveNeighborsCount(int i, int j)
         {
-            List<Cell> neigh = new List<Cell>(8);
+            //List<Cell> neigh = new List<Cell>(8);
+            int neigh = 0;
             int maxCol = Math.Min(cellsCompare.GetLength(1), j + 2);
             int minCol = Math.Max(0, j - 1);
             int maxRow = Math.Min(cellsCompare.GetLength(0), i + 2);
@@ -119,11 +122,11 @@ namespace testconway
                 {
                     if (row == i && col == j) continue;
                     Cell toAdd = cellsCompare[row, col];
-                    if (toAdd.type == CellType.Alive) neigh.Add(toAdd);
+                    if (toAdd.type == CellType.Alive) neigh++;
                 }
             }
 
-            if (neigh.Count == 9) Console.WriteLine("bad things are happening: count is 9");
+            if (neigh == 9) Console.WriteLine("bad things are happening: count is 9");
             return neigh;
         }
 
@@ -132,17 +135,17 @@ namespace testconway
         {
             CellAction cellAction = cellAct as CellAction;
             Cell cell = cellsCompare[cellAction.y, cellAction.x];
-            Cell cellSet = cellsCompare[cellAction.y, cellAction.x];
-            int numberOfAliveNeighbors = GetAliveNeighbors(cellAction.y, cellAction.x).Count;
+
+            int numberOfAliveNeighbors = GetAliveNeighborsCount(cellAction.y, cellAction.x);
             if (cell.type == CellType.Dead && numberOfAliveNeighbors == 3)
-            {                
-                cellSet.type = CellType.Alive;                
+            {
+                cellsSet[cellAction.y, cellAction.x].type = CellType.Alive;                
             }
             else if (numberOfAliveNeighbors < 2 || numberOfAliveNeighbors > 3)
-            {                
-                cellSet.type = CellType.Dead;
+            {
+                cellsSet[cellAction.y, cellAction.x].type = CellType.Dead;
             }
-            cellsSet[cellAction.y, cellAction.x] = cellSet;
+            //cellsSet[cellAction.y, cellAction.x] = cellSet;
             cellResources.Release();
         }
 

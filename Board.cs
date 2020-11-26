@@ -66,6 +66,7 @@ public class Board
 
     public void RemoveThread()
     {
+       
         game.NumberOfWorkers = Math.Max(1, game.NumberOfWorkers - 1);
         Console.WriteLine($"current threads: {game.NumberOfWorkers}");
     }
@@ -93,7 +94,7 @@ public class Board
     }
 
     public Cell[,] BoardCopy()
-    { 
+    {
         return cells.Clone() as Cell[,];
     }
 

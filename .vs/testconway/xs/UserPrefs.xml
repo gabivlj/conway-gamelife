@@ -1,18 +1,19 @@
 ﻿<Properties StartupConfiguration="{D4B47B2F-359D-469D-91A5-A57F067C8D91}|Default">
   <MonoDevelop.Ide.ItemProperties.testconway PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="TaskManager.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Board.cs">
     <Files>
-      <File FileName="Program.cs" Line="182" Column="48" />
-      <File FileName="Game.cs" />
-      <File FileName="Board.cs" />
-      <File FileName="TaskManager.cs" Line="18" Column="10" />
+      <File FileName="Program.cs" Line="36" Column="49" />
+      <File FileName="Game.cs" Line="27" Column="18" />
+      <File FileName="TaskManager.cs" Line="109" Column="44" />
+      <File FileName="Board.cs" Line="98" Column="50" />
+      <File FileName="Config.cs" Line="61" Column="24" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="testconway" expanded="True">
             <Node name="testconway" expanded="True">
-              <Node name="TaskManager.cs" selected="True" />
+              <Node name="Board.cs" selected="True" />
             </Node>
           </Node>
         </State>
@@ -20,7 +21,7 @@
     </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

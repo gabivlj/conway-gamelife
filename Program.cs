@@ -34,11 +34,6 @@ namespace testconway
                 }
             });
             Console.WriteLine("start check...");
-            while (st != 5000050000)
-            {
-                Console.WriteLine($"mmm {st}");
-                Thread.Sleep(150);
-            }
             Console.WriteLine($"finished {st}");
             taskManager.Finish();
         }
@@ -46,8 +41,8 @@ namespace testconway
 
         static void Main(string[] args)
         {
-            //Console.Clear();
             Console.Clear();
+            Console.WriteLine("Number Of Processors: {0}", Environment.ProcessorCount);
             Console.WriteLine("instructions: \n- Movement with wasd.\n- '+' To add one thread.\n- '-' To remove a thread.\n- 'r' to Reset.");
             //TestingWorkers();
             using (var window = new Window())
@@ -137,7 +132,7 @@ namespace testconway
         {
             if (e.KeyChar == 'r' || e.KeyChar == 'R')
             {
-                Console.WriteLine("reset");
+                Console.WriteLine("Reset");
                 board.Reset();
                 return;
             }
@@ -155,7 +150,10 @@ namespace testconway
                 offsetX += speed;
             if (e.KeyChar == 'A' || e.KeyChar == 'a')
                 offsetX -= speed;
-            
+            if (e.KeyChar == 'W' || e.KeyChar == 'w')
+                offsetY += speed;
+            if (e.KeyChar == 'S' || e.KeyChar == 's')
+                offsetY -= speed;
             SetResolution(resolution);
         }
 
@@ -179,7 +177,7 @@ namespace testconway
         {
             if (board == null)
             {
-                board = new Board(this, "./test.txt");
+                board = new Board(this, "./glider.txt");
                 board.Start();
             }
             board.Update();

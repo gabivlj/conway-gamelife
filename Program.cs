@@ -9,42 +9,16 @@ namespace testconway
 {
     class Program
     {
-        static string l = "";
-        static double st = 0;
-
-        static void TestingWorkers()
-        {
-            const double nIters = 100000;
-            var taskManager = new TaskManager(16);
-            taskManager.Do((_) =>
-            {
-                for (int i = 1; i <= nIters; i++)
-                {
-                    int capture = i;
-                    taskManager.Do((el) =>
-                    {
-                        int ij = (int) el;
-                        int capt2 = capture;
-                        //Thread.Sleep(i);
-                        lock (l)
-                        {
-                            st += ij;
-                        }
-                    }, i);
-                }
-            });
-            Console.WriteLine("start check...");
-            Console.WriteLine($"finished {st}");
-            taskManager.Finish();
-        }
-
+        public static bool DebugPerf = false;
+        public const string FILE_PATH = "./data.txt";
 
         static void Main(string[] args)
         {
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.Clear();
             Console.WriteLine("Number Of Processors: {0}", Environment.ProcessorCount);
-            Console.WriteLine("instructions: \n- Movement with wasd.\n- '+' To add one thread.\n- '-' To remove a thread.\n- 'r' to Reset.");
-            //TestingWorkers();
+            Console.WriteLine("Instructions: \n- Movement with wasd.\n- '+' To add one thread.\n- '-' To remove a thread.\n- 'r' to Reset.\n- Scroll to zoom\n- Txt files are loaded from the bin/Debug or bin/Release folders\n- Press space to activate/deactivate debugging of time");
+ 
             using (var window = new Window())
             {
                 window.Run();
@@ -118,11 +92,6 @@ namespace testconway
             GL.Flush();
         }
 
-        private void DisplayInformation()
-        {
-          
-        }
-
         #endregion
 
         #region OpenGL LifeCycle
@@ -132,7 +101,7 @@ namespace testconway
         {
             if (e.KeyChar == 'r' || e.KeyChar == 'R')
             {
-                Console.WriteLine("Reset");
+                Console.WriteLine("Reseting...");
                 board.Reset();
                 return;
             }
@@ -146,6 +115,11 @@ namespace testconway
                 board.RemoveThread();
                 return;
             }
+            if (e.KeyChar == ' ')
+            {
+                Program.DebugPerf = !Program.DebugPerf;
+                return;
+            }
             if (e.KeyChar == 'D' || e.KeyChar == 'd')
                 offsetX += speed;
             if (e.KeyChar == 'A' || e.KeyChar == 'a')
@@ -153,7 +127,7 @@ namespace testconway
             if (e.KeyChar == 'W' || e.KeyChar == 'w')
                 offsetY += speed;
             if (e.KeyChar == 'S' || e.KeyChar == 's')
-                offsetY -= speed;
+                offsetY -= speed;            
             SetResolution(resolution);
         }
 
@@ -177,12 +151,10 @@ namespace testconway
         {
             if (board == null)
             {
-                board = new Board(this, "./glider.txt");
+                board = new Board(this, Program.FILE_PATH);
                 board.Start();
             }
             board.Update();
-            //drawing.Print(font, txt, , new QFontRenderOptions());
-            //drawing.Print(font, "text2", new Vector3(1, 1, 1), QFontAlignment.Left);
         }
 
         

@@ -16,3 +16,4 @@
 /Users/gabivlj/programming/C#/testconway/obj/Release/netcoreapp3.1/testconway.dll
 /Users/gabivlj/programming/C#/testconway/obj/Release/netcoreapp3.1/testconway.pdb
 /Users/gabivlj/programming/C#/testconway/obj/Release/netcoreapp3.1/testconway.genruntimeconfig.cache
+/Users/gabivlj/programming/C#/testconway/obj/Release/netcoreapp3.1/testconway.csprojAssemblyReference.cache

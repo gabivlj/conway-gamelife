@@ -23,11 +23,23 @@ namespace testconway
 
         public Config(string path = "./data.txt")
         {
-            lines = File.ReadAllLines(path);
-            if (lines.Length == 0 || !FillWidthHeight(lines[0]))
+            try
             {
-                throw new ApplicationException("bad file format: needed `width` and `height` parameters separated by coma on first line");
-            }            
+                lines = File.ReadAllLines(path);
+                if (lines.Length == 0 || !FillWidthHeight(lines[0]))
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                    Console.WriteLine($"[ERROR]: Error loading file at {path}... Did you remember to put your file?\n** Maybe the format isn't quite right... Check the examples!\nUsing empty grid...");
+                    width = 1;
+                    height = 1;
+                }
+            }
+            catch (Exception)
+            {
+                width = -1;
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                Console.WriteLine($"[ERROR]: Error loading file at {path}... Did you remember to put your file?\nUsing empty grid...");
+            }
         }
 
         private bool FillWidthHeight(string line)

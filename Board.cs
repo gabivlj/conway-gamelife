@@ -61,14 +61,14 @@ public class Board
     public void AddThread()
     {        
         game.NumberOfWorkers = Math.Min(64, game.NumberOfWorkers + 1);
-        Console.WriteLine($"current threads: {game.NumberOfWorkers}");
+        Console.WriteLine($"Current number of threads: {game.NumberOfWorkers}");
     }
 
     public void RemoveThread()
     {
        
         game.NumberOfWorkers = Math.Max(1, game.NumberOfWorkers - 1);
-        Console.WriteLine($"current threads: {game.NumberOfWorkers}");
+        Console.WriteLine($"Current number of threads: {game.NumberOfWorkers}");
     }
 
     public Board(IView view, string configPath = "./data.txt")
@@ -82,6 +82,15 @@ public class Board
     private void LoadConfig(string configPath)
     {
         Config configData = new Config(configPath);
+        // check error...
+        if (configData.Width <= 0)
+        {
+            Environment.FailFast("Something went wrong loading the configuration file!");
+            return;
+        }        
+        Console.ForegroundColor = ConsoleColor.DarkGreen;
+        Console.WriteLine($"Loaded successfuly text file from {configPath}");
+        Console.ForegroundColor = ConsoleColor.Green;        
         width = configData.Width;
         height = configData.Height;
         cells = configData.LoadCells();

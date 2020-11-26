@@ -61,7 +61,7 @@ namespace testconway
             {
                 manager.Finish();
                 // one more because we have to send the initial task and there is not a softblock
-                manager = new TaskManager(numberOfWorkers+1);
+                manager = new TaskManager(numberOfWorkers + 1);
                 newWorkers = false;
             }
             manager.Do((_) =>
@@ -70,8 +70,14 @@ namespace testconway
                 CellAction.CallCellActions(board, manager);
                 Cell[,] newCells = CellAction.WaitNewGameState();
                 TimeSpan span = DateTime.Now.Subtract(d);
-                //Console.WriteLine($"turn done in {span.Milliseconds}");
-                Thread.Sleep(Math.Max(sleepTime - span.Milliseconds, 1));
+                int msWaitTime = Math.Max(sleepTime - span.Milliseconds, 1);
+                if (Program.DebugPerf)
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine($"Turn done in {span.Milliseconds}ms with {numberOfWorkers} threads\nWe'll wait: {msWaitTime}ms");
+                    Console.ForegroundColor = ConsoleColor.Green;
+                }                
+                Thread.Sleep(msWaitTime);
                 board.SafeUpdateCells(newCells);
 
             });          
@@ -80,11 +86,13 @@ namespace testconway
         #endregion
     }
 
-
+    /// <summary>
+    /// What CellAction does is:
+    /// - Holding the callback and information that we'll send to the TaskManager.
+    /// - Barrier wait until all cells are done processing.
+    /// </summary>
     class CellAction
     {
-
-
 
         #region Private Variables
 
@@ -126,7 +134,11 @@ namespace testconway
                 }
             }
 
-            if (neigh == 9) Console.WriteLine("bad things are happening: count is 9");
+            if (neigh == 9)
+            {
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                Console.WriteLine("bad things are happening: count is 9");
+            }
             return neigh;
         }
 
